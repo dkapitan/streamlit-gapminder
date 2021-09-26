@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
 import altair as alt
+from bokeh.models import (Button, CategoricalColorMapper, ColumnDataSource, HoverTool, Label, LogTicker, Slider)
+from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 import matplotlib.pyplot as plt
 import numpy as np
@@ -104,8 +106,29 @@ class Gapminder:
     
     def bokeh(self):
         # note bokeh version issue https://discuss.streamlit.io/t/bokeh-2-0-potentially-broken-in-streamlit/2025/8
-        plot = figure()
-        plot.scatter(x=self.df.gdpPercap, y=self.df.lifeExp, radius=self.df.size)
+        source = ColumnDataSource(self.df)
+        color_mapper = CategoricalColorMapper(palette=Spectral6, factors=self.df.continent.unique())
+        plot = figure(title="Bokeh", x_axis_type="log", height=self.chart_height)
+        plot.xaxis.axis_label = self.xlabel
+        plot.xaxis.ticker=LogTicker()
+        plot.yaxis.axis_label = self.ylabel
+        plot.scatter(
+            x="gdpPercap",
+            y="lifeExp",
+            size="size",
+            source=source,
+            fill_color={"field": "continent", "transform": color_mapper},
+            fill_alpha=0.8,
+            line_color="#7c7e71",
+            line_width=0.5,
+            line_alpha=0.5,
+            legend_group="continent"
+            )
+        plot.add_tools(HoverTool(tooltips=[
+            ("continent:", "@continent"),
+            ("country:", "@country"),
+            ("GDP per capita:", "@gdpPercap"),
+            ("Life expectancy:", "@lifeExp")], show_arrow=False, point_policy="follow_mouse"))
         return plot
 
     
@@ -135,7 +158,9 @@ gapminder = Gapminder()
 st.set_page_config(layout="wide")
 
 # side bar
-gapminder.year = st.sidebar.slider(label="year", min_value=1952, max_value=2007, step=5)
+st.sidebar.subheader("Widgets")
+st.sidebar.markdown("Use the slider to show data from subsequent years.")
+gapminder.year = st.sidebar.slider(label="", min_value=1952, max_value=2007, step=5)
 gapminder.show_legend = st.sidebar.checkbox("Toggle legend", gapminder.show_legend)
 gapminder.df = gapminder.get_data()
 
@@ -143,8 +168,8 @@ gapminder.df = gapminder.get_data()
 # main body
 st.title("Gapminder in different ways")
 st.markdown(
-    """Demo of different interactive plotting libraries using the classic
-    [gapminder bubble chart](https://discuss.streamlit.io/t/bokeh-2-0-potentially-broken-in-streamlit/2025/8).
+    """Demo of different interactive plotting libraries reproducing the classic
+    [Gapminder bubble chart](https://discuss.streamlit.io/t/bokeh-2-0-potentially-broken-in-streamlit/2025/8).
     """
 )
 
