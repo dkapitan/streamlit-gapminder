@@ -158,14 +158,13 @@ with col1:
     st.plotly_chart(gapminder.plotly(), True)
 
 with col2:
+    st.bokeh_chart(gapminder.bokeh(), use_container_width=True)
     st.pyplot(gapminder.pyplot(), False)
 
-# st.bokeh_chart(gapminder.bokeh())
+
 
 # x = [1, 2, 3, 4, 5]
 # y = [6, 7, 2, 4, 5]
-
 # p = figure(title="simple line example", x_axis_label="x", y_axis_label="y")
-
 # p.line(x, y, legend_label="Trend", line_width=2)
-# st.bokeh_chart(p, use_container_width=True)
+
