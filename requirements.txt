@@ -1,5 +1,5 @@
 altair
-bokeh
+bokeh==2.0.0
 matplotlib
 pandas
 numpy
